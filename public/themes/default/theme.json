@@ -1,0 +1,51 @@
+{
+    "name": "default",
+    "displayName": "Default Theme",
+    "version": "1.0.0",
+    "description": "Clean and modern default theme for CMS",
+    "author": "CMS Team",
+    "license": "MIT",
+    "screenshot": "screenshot.png",
+    "layouts": {
+        "default": "layouts/default.php",
+        "single": "layouts/single.php",
+        "fullwidth": "layouts/fullwidth.php"
+    },
+    "regions": {
+        "header": "Header",
+        "sidebar": "Sidebar",
+        "footer": "Footer"
+    },
+    "menus": {
+        "main": "Main Navigation",
+        "footer": "Footer Menu"
+    },
+    "widgets": {
+        "search": "Search Widget",
+        "recent_posts": "Recent Posts",
+        "categories": "Categories",
+        "tags": "Tag Cloud"
+    },
+    "settings": {
+        "color_scheme": {
+            "type": "select",
+            "label": "Color Scheme",
+            "default": "light",
+            "options": {
+                "light": "Light",
+                "dark": "Dark",
+                "auto": "Auto"
+            }
+        },
+        "container_width": {
+            "type": "select",
+            "label": "Container Width",
+            "default": "normal",
+            "options": {
+                "normal": "Normal (1200px)",
+                "wide": "Wide (1400px)",
+                "full": "Full Width"
+            }
+        }
+    }
+}
