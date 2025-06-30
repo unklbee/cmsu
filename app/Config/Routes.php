@@ -49,10 +49,10 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin', 'filter' => 'ad
 
     // Modules
     $routes->GET('modules', 'Modules::index');
-    $routes->POST('modules/toggle/(:segment)', 'Modules::toggle/$1');
-    $routes->GET('modules/install/(:segment)', 'Modules::install/$1');
-    $routes->GET('modules/uninstall/(:num)', 'Modules::uninstall/$1');
-    $routes->GET('modules/config/(:num)', 'Modules::config/$1');
+    $routes->POST('modules/toggle/(:segment)', 'Modules::toggle/$1');  // Tetap POST
+    $routes->POST('modules/install/(:segment)', 'Modules::install/$1'); // Ubah ke POST
+    $routes->POST('modules/uninstall/(:num)', 'Modules::uninstall/$1'); // Ubah ke POST
+    $routes->GET('modules/config/(:num)', 'Modules::config/$1');       // Tetap GET karena hanya view
 
     // Notifications
     $routes->GET('notifications', 'Notifications::index');

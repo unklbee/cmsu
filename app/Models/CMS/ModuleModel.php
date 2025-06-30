@@ -24,9 +24,9 @@ class ModuleModel extends BaseModel
     ];
 
     protected array $casts = [
-        'config' => 'json',
-        'permissions' => 'json',
-        'routes' => 'json'
+        'config' => 'json-array',      // Tambahkan -array
+        'permissions' => 'json-array', // Tambahkan -array
+        'routes' => 'json-array'       // Tambahkan -array
     ];
 
     private string $modulesPath;

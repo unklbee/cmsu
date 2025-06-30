@@ -58,7 +58,35 @@ class Modules extends BaseAdminController
 
     public function config($id)
     {
-        // Implement module configuration page
+        $this->checkPermission('admin.modules');
+
+        $module = $this->moduleModel->find($id);
+        if (!$module) {
+            return redirect()->to('/admin/modules')->with('error', 'Module not found');
+        }
+
+        $this->setTitle('Configure ' . $module->display_name);
+
+        if ($this->request->getMethod() === 'post') {
+            $config = $this->request->getPost('config');
+
+            try {
+                $this->moduleModel->updateConfig($module->name, $config);
+                return redirect()->to('/admin/modules/config/' . $id)
+                    ->with('success', 'Configuration updated successfully');
+            } catch (\Exception $e) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', $e->getMessage());
+            }
+        }
+
+        $data = [
+            'module' => $module,
+            'config' => $module->config ?? []
+        ];
+
+        return $this->render('modules/config', $data);
     }
 
     public function toggle($id): RedirectResponse

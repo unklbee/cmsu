@@ -51,18 +51,19 @@
                                         </td>
                                         <td>
                                             <div class="btn-group btn-group-sm">
-                                                <?php if ($module->status === 'active'): ?>
-                                                    <a href="<?= site_url('admin/modules/toggle/' . $module->id) ?>"
-                                                       class="btn btn-warning"
-                                                       onclick="return confirm('Disable this module?')">
-                                                        <i class="fas fa-power-off"></i> Disable
-                                                    </a>
-                                                <?php else: ?>
-                                                    <a href="<?= site_url('admin/modules/toggle/' . $module->id) ?>"
-                                                       class="btn btn-success">
-                                                        <i class="fas fa-power-off"></i> Enable
-                                                    </a>
-                                                <?php endif; ?>
+                                                <form method="post" action="<?= site_url('admin/modules/toggle/' . $module->id) ?>" style="display: inline;">
+                                                    <?= csrf_field() ?>
+                                                    <?php if ($module->status === 'active'): ?>
+                                                        <button type="submit" class="btn btn-warning"
+                                                                onclick="return confirm('Disable this module?')">
+                                                            <i class="fas fa-power-off"></i> Disable
+                                                        </button>
+                                                    <?php else: ?>
+                                                        <button type="submit" class="btn btn-success">
+                                                            <i class="fas fa-power-off"></i> Enable
+                                                        </button>
+                                                    <?php endif; ?>
+                                                </form>
 
                                                 <a href="<?= site_url('admin/modules/config/' . $module->id) ?>"
                                                    class="btn btn-info">

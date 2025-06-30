@@ -10,9 +10,9 @@ class ModuleEntity extends Entity
     protected $dates = ['installed_at', 'updated_at'];
     protected $casts = [
         'id' => 'integer',
-        'config' => 'json',
-        'permissions' => 'json',
-        'routes' => 'json',
+        'config' => 'json-array',      // Pastikan ada -array
+        'permissions' => 'json-array',  // Pastikan ada -array
+        'routes' => 'json-array',       // Pastikan ada -array
         'order' => 'integer'
     ];
 
@@ -21,7 +21,7 @@ class ModuleEntity extends Entity
      */
     public function isActive(): bool
     {
-        return $this->status === 'active';
+        return $this->attributes['status'] === 'active';
     }
 
     /**
@@ -29,7 +29,7 @@ class ModuleEntity extends Entity
      */
     public function getPath(): string
     {
-        return APPPATH . 'Modules/' . $this->name;
+        return APPPATH . 'Modules/' . $this->attributes['name'];
     }
 
     /**
@@ -37,11 +37,18 @@ class ModuleEntity extends Entity
      */
     public function getConfig(string $key = null, $default = null)
     {
-        if ($key === null) {
-            return $this->config;
+        $config = $this->attributes['config'] ?? [];
+
+        // Handle jika config masih string JSON
+        if (is_string($config)) {
+            $config = json_decode($config, true) ?? [];
         }
 
-        return dot_array_search($key, $this->config) ?? $default;
+        if ($key === null) {
+            return $config;
+        }
+
+        return dot_array_search($key, $config) ?? $default;
     }
 
     /**
@@ -49,7 +56,14 @@ class ModuleEntity extends Entity
      */
     public function hasPermission(string $permission): bool
     {
-        return in_array($permission, $this->permissions ?? []);
+        $permissions = $this->attributes['permissions'] ?? [];
+
+        // Handle jika permissions masih string JSON
+        if (is_string($permissions)) {
+            $permissions = json_decode($permissions, true) ?? [];
+        }
+
+        return in_array($permission, $permissions);
     }
 
     /**
@@ -57,6 +71,13 @@ class ModuleEntity extends Entity
      */
     public function getRoutes(): array
     {
-        return $this->routes ?? [];
+        $routes = $this->attributes['routes'] ?? [];
+
+        // Handle jika routes masih string JSON
+        if (is_string($routes)) {
+            $routes = json_decode($routes, true) ?? [];
+        }
+
+        return $routes;
     }
 }
