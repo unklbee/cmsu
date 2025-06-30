@@ -22,8 +22,8 @@ class Home extends BaseController
     public function index()
     {
         $data = [
-            'title' => setting('site_name'),
-            'description' => setting('site_description')
+            'title' => cms_setting('site_name'),
+            'description' => cms_setting('site_description')
         ];
 
         // If blog module is active, get recent posts

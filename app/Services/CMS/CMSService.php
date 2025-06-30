@@ -20,6 +20,9 @@ class CMSService
         $this->modules = model('App\Models\CMS\ModuleModel');
         $this->menus = model('App\Models\CMS\MenuModel');
         $this->cache = Services::cache();
+
+        $this->loadModules();
+        $this->setGlobalData();
     }
 
     /**
@@ -107,7 +110,9 @@ class CMSService
      */
     public function getSetting(string $key, $default = null)
     {
-        return $this->settings->get($key, $default);
+        // Use our own SettingModel, not codeigniter4/settings
+        $settingModel = model('App\Models\CMS\SettingModel');
+        return $settingModel->get($key, $default);
     }
 
     /**
