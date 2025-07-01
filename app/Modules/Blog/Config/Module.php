@@ -48,12 +48,11 @@ return [
 
     // Installation callback
     'install' => function() {
-        // Run migrations
-        $migrate = Services::migrations();
-        $migrate->setNamespace('App\Modules\Blog');
+        // Run migrations using custom module migration service
+        $moduleMigrationService = new \App\Services\CMS\ModuleMigrationService();
 
         try {
-            $migrate->latest();
+            $moduleMigrationService->migrateModule('Blog');
         } catch (\Exception $e) {
             log_message('error', 'Blog module migration failed: ' . $e->getMessage());
             return false;
@@ -61,35 +60,62 @@ return [
 
         // Create default category using raw query
         $db = Database::connect();
-        $db->table('blog_categories')->insert([
-            'name' => 'Uncategorized',
-            'slug' => 'uncategorized',
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s')
-        ]);
 
-        // Add menu items
-        $db->table('cms_menus')->insert([
-            'menu_group' => 'main',
-            'title' => 'Blog',
-            'url' => '/blog',
-            'icon' => 'fa-newspaper',
-            'order' => 10,
-            'is_active' => 1,
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s')
-        ]);
+        // Check if category already exists
+        $existingCategory = $db->table('blog_categories')
+            ->where('slug', 'uncategorized')
+            ->get()
+            ->getRow();
 
-        $db->table('cms_menus')->insert([
-            'menu_group' => 'admin',
-            'title' => 'Blog',
-            'icon' => 'fa-newspaper',
-            'permission' => 'blog.view',
-            'order' => 10,
-            'is_active' => 1,
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s')
-        ]);
+        if (!$existingCategory) {
+            $db->table('blog_categories')->insert([
+                'name' => 'Uncategorized',
+                'slug' => 'uncategorized',
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+        }
+
+        // Add menu items (check if already exist)
+        $existingMainMenu = $db->table('cms_menus')
+            ->where('title', 'Blog')
+            ->where('menu_group', 'main')
+            ->get()
+            ->getRow();
+
+        if (!$existingMainMenu) {
+            $db->table('cms_menus')->insert([
+                'menu_group' => 'main',
+                'title' => 'Blog',
+                'url' => '/blog',
+                'icon' => 'fa-newspaper',
+                'order' => 10,
+                'is_active' => 1,
+                'metadata' => '{}',
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+        }
+
+        $existingAdminMenu = $db->table('cms_menus')
+            ->where('title', 'Blog')
+            ->where('menu_group', 'admin')
+            ->get()
+            ->getRow();
+
+        if (!$existingAdminMenu) {
+            $db->table('cms_menus')->insert([
+                'menu_group' => 'admin',
+                'title' => 'Blog',
+                'icon' => 'fa-newspaper',
+                'permission' => 'blog.view',
+                'order' => 10,
+                'is_active' => 1,
+                'metadata' => '{}',
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+        }
 
         return true;
     },
@@ -100,13 +126,9 @@ return [
         $db = Database::connect();
         $db->table('cms_menus')->where('title', 'Blog')->delete();
 
-        // Drop tables
-        $forge = Database::forge();
-        $forge->dropTable('blog_comments', true);
-        $forge->dropTable('blog_post_tags', true);
-        $forge->dropTable('blog_tags', true);
-        $forge->dropTable('blog_posts', true);
-        $forge->dropTable('blog_categories', true);
+        // Rollback migrations
+        $moduleMigrationService = new \App\Services\CMS\ModuleMigrationService();
+        $moduleMigrationService->rollbackModule('Blog');
 
         return true;
     }

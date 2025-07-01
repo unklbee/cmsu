@@ -103,13 +103,63 @@ class CMSSeeder extends Seeder
     {
         $users = auth()->getProvider();
 
-        // Note: Admin user will be created by the install command
-        // Here we just create sample users for development
+        try {
+            $db = \Config\Database::connect();
 
-        if (ENVIRONMENT === 'development') {
-            try {
-                $db = \Config\Database::connect();
+            // Create superadmin user (always create if not exists)
+            $existingSuperAdmin = $db->table('users')->where('username', 'admin')->countAllResults();
+            if ($existingSuperAdmin === 0) {
+                // Create superadmin user
+                $user = new \CodeIgniter\Shield\Entities\User([
+                    'username' => 'admin',
+                    'email' => 'admin@example.com',
+                    'password' => 'admin123',
+                    'active' => 1
+                ]);
 
+                $users->save($user);
+                if (!$users->errors()) {
+                    $userId = $users->getInsertID();
+
+                    // Add to superadmin group
+                    $db->table('auth_groups_users')->insert([
+                        'user_id' => $userId,
+                        'group' => 'superadmin',
+                        'created_at' => date('Y-m-d H:i:s')
+                    ]);
+
+                    // Add all permissions for superadmin
+                    $superAdminPermissions = [
+                        'admin.access',
+                        'admin.settings',
+                        'admin.users',
+                        'admin.modules',
+                        'admin.themes',
+                        'content.create',
+                        'content.edit',
+                        'content.delete',
+                        'content.publish',
+                        'media.upload',
+                        'media.delete',
+                        'media.manage',
+                        'api.access',
+                        'api.manage'
+                    ];
+
+                    foreach ($superAdminPermissions as $permission) {
+                        $db->table('auth_permissions_users')->insert([
+                            'user_id' => $userId,
+                            'permission' => $permission,
+                            'created_at' => date('Y-m-d H:i:s')
+                        ]);
+                    }
+
+                    echo "Superadmin user created successfully.\n";
+                }
+            }
+
+            // Create sample users for development
+            if (ENVIRONMENT === 'development') {
                 // Check if editor already exists
                 $existingEditor = $db->table('users')->where('username', 'editor')->countAllResults();
                 if ($existingEditor === 0) {
@@ -175,9 +225,9 @@ class CMSSeeder extends Seeder
                 }
 
                 echo "Sample users created successfully.\n";
-            } catch (\Exception $e) {
-                echo "Error creating sample users: " . $e->getMessage() . "\n";
             }
+        } catch (\Exception $e) {
+            echo "Error creating users: " . $e->getMessage() . "\n";
         }
     }
 

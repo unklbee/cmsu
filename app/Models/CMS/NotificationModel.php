@@ -4,6 +4,7 @@ namespace App\Models\CMS;
 
 use App\Entities\CMS\NotificationEntity;
 use CodeIgniter\I18n\Time;
+use CodeIgniter\Events\Events;
 
 class NotificationModel extends BaseModel
 {
@@ -19,13 +20,10 @@ class NotificationModel extends BaseModel
         'user_id' => 'required|numeric',
         'type' => 'required|string',
         'title' => 'required|string',
-        'message' => 'required|string',
-        'data' => 'permit_empty' // Allow null/empty
+        'message' => 'required|string'
     ];
 
-    protected array $casts = [
-        'data' => 'json-array'
-    ];
+    // Casts are handled by the entity
 
     // Disable activity logging for notifications
     protected $enableActivityLog = false;
@@ -41,7 +39,7 @@ class NotificationModel extends BaseModel
             'title' => $title,
             'message' => $message,
             'action_url' => $options['action_url'] ?? null,
-            'data' => !empty($options['data']) ? $options['data'] : [],
+            'data' => $options['data'] ?? null,
             'created_at' => date('Y-m-d H:i:s')
         ];
 

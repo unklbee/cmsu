@@ -39,6 +39,7 @@ class CreateCoreCmsTables extends Migration
             'routes' => ['type' => 'json', 'null' => true],
             'order' => ['type' => 'int', 'constraint' => 11, 'default' => 0],
             'installed_at' => ['type' => 'datetime', 'null' => true],
+            'created_at' => ['type' => 'datetime', 'null' => true],
             'updated_at' => ['type' => 'datetime', 'null' => true],
             'deleted_at' => ['type' => 'datetime', 'null' => true],
         ]);
